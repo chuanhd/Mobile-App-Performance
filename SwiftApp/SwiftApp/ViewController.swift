@@ -46,39 +46,46 @@ class ViewController: UIViewController {
       +   "}"
       + "}"
     
-    track = Track(jsonData: trackJSON.dataUsingEncoding(NSUTF8StringEncoding)!)
-    
-    let lapsFilePath = NSBundle.mainBundle().pathForResource("multi_lap_session", ofType: "csv", inDirectory: "Data")!
-    let contents = String(contentsOfFile: lapsFilePath, encoding: NSUTF8StringEncoding, error: nil)!
-    let lines = contents.componentsSeparatedByString("\n")
-    for line in lines {
-      let parts = line.componentsSeparatedByString(",") as [NSString]
-      points.append(Point(
-        latitude: parts[0].doubleValue,
-        longitude: parts[1].doubleValue,
-        speed: parts[2].doubleValue,
-        bearing: parts[3].doubleValue,
-        horizontalAccuracy: 5.0,
-        verticalAccuracy: 15.0,
-        timestamp: 0))
+    do {
+        track = try Track(jsonData: trackJSON.data(using: String.Encoding.utf8)!)
+        
+        let lapsFilePath = Bundle.main.path(forResource: "multi_lap_session", ofType: "csv", inDirectory: "Data")!
+        
+        let contents = try String(contentsOfFile: lapsFilePath, encoding: String.Encoding.utf8)
+        let lines = contents.components(separatedBy: "\n")
+        for line in lines {
+            let parts = line.components(separatedBy: ",")
+            points.append(Point(
+                latitude: Double(parts[0])!,
+                longitude: Double(parts[1])!,
+                speed: Double(parts[2])!,
+                bearing: Double(parts[3])!,
+                horizontalAccuracy: 5.0,
+                verticalAccuracy: 15.0,
+                timestamp: 0))
+        }
+    } catch {
+        
     }
+    
+    
   }
   
   @IBAction func run1000(sender: AnyObject) {
-    label1000.text = (NSString(format: "%0.03f", run(1000)) as! String)
+    label1000.text = String(format: "%0.03f", arguments: [run(count: 1000)])
   }
 
   @IBAction func run10000(sender: AnyObject) {
-    label10000.text = (NSString(format: "%0.03f", run(10000)) as! String)
+    label10000.text = String(format: "%0.03f", arguments: [run(count: 10000)])
   }
   
   func run(count: Int) -> Double {
     let start = NSDate().timeIntervalSince1970
     var startTime = start
-    for index in 1...count {
-      SessionManager.instance.startSession(track!)
+    for _ in 1...count {
+        SessionManager.instance.startSession(track: track!)
       for point in points {
-        SessionManager.instance.gps(latitude: point.latitudeDegrees(), longitude: point.longitudeDegrees(), speed: point.speed, bearing: point.bearing, horizontalAccuracy: point.hAccuracy, verticalAccuracy: point.vAccuracy, timestamp: startTime)
+        SessionManager.instance.gps(point.latitudeDegrees(), point.longitudeDegrees(), point.speed, point.bearing, horizontalAccuracy: point.hAccuracy, verticalAccuracy: point.vAccuracy, timestamp: startTime)
         startTime += 1
       }
       SessionManager.instance.endSession()

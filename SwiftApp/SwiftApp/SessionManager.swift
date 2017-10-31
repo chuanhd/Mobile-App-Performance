@@ -38,8 +38,8 @@ final class SessionManager {
         startTime: session!.startTime,
         lapNumber: 0)
       session!.laps.append(currentLap!)
-      splits = [Double](count: track.numSplits(), repeatedValue: 0)
-      splitGaps = [Double](count: track.numSplits(), repeatedValue: -1)
+        splits = [Double](repeating: 0, count: track.numSplits())
+        splitGaps = [Double](repeating: -1, count: track.numSplits())
       splitStartTime = session!.startTime
       splitNumber = 0
       currentSplit = 0
@@ -56,15 +56,15 @@ final class SessionManager {
     bestLap = nil
   }
   
-  func gps(#latitude: Double, longitude: Double, speed: Double, bearing: Double,
+  func gps(_ latitude: Double,_ longitude: Double,_ speed: Double,_ bearing: Double,
     horizontalAccuracy: Double, verticalAccuracy: Double, timestamp: Double) {
     var point = Point(latitude: latitude, longitude: longitude, speed: speed,
       bearing: bearing, horizontalAccuracy: horizontalAccuracy,
       verticalAccuracy: verticalAccuracy, timestamp: timestamp)
     if currentLap!.points.count != 0 {
       var cross: Point = Point()
-      if nextGate!.crossed(start: lastPoint, destination: point, cross: &cross) {
-        currentLap!.add(cross)
+        if nextGate!.crossed(lastPoint, point, &cross) {
+            currentLap!.add(point: cross)
         currentLap!.splits[currentSplit] = cross.splitTime
         switch nextGate!.type {
         case .START_FINISH, .FINISH:
@@ -88,10 +88,10 @@ final class SessionManager {
           lastPoint.lapDistance = 0
           lastPoint.lapTime = 0
           lastPoint.generated = true
-          currentLap!.add(lastPoint);
+          currentLap!.add(point: lastPoint);
           session!.laps.append(currentLap!)
           gap = 0
-          for (index, gap) in enumerate(splitGaps) {
+          for (index, _) in splitGaps.enumerated() {
             splitGaps[index] = 0
           }
           bestIndex = 0
@@ -100,7 +100,7 @@ final class SessionManager {
           if bestLap != nil {
             splitGaps[currentSplit] = currentLap!.splits[currentSplit] - bestLap!.splits[currentSplit]
           }
-          currentSplit++
+          currentSplit += 1
         }
         splitStartTime = cross.timestamp
         nextGate = track!.gates[currentSplit]
@@ -118,13 +118,13 @@ final class SessionManager {
             }
             break
           }
-          bestIndex++
+          bestIndex += 1
         }
       }
-      point.lapDistance = lastPoint.lapDistance + lastPoint.distanceTo(point)
-      point.setLapTime(currentLap!.startTime, splitStartTime: splitStartTime)
+        point.lapDistance = lastPoint.lapDistance + lastPoint.distanceTo(point: point)
+        point.setLapTime(startTime: currentLap!.startTime, splitStartTime: splitStartTime)
     }
-    currentLap!.add(point)
+    currentLap!.add(point: point)
     lastPoint = point
   }
 

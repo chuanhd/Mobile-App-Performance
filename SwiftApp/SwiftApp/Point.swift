@@ -5,11 +5,11 @@
 import UIKit
 
 func toRadians(value: Double) -> Double {
-  return value * M_PI / 180.0
+  return value * Double.pi / 180.0
 }
 
 func toDegrees(value: Double) -> Double {
-  return value * 180.0 / M_PI
+  return value * 180.0 / Double.pi
 }
 
 func == (left: Point, right: Point) -> Bool {
@@ -38,13 +38,13 @@ struct Point: Equatable {
     self.init(latitude: 0, longitude: 0, inRadians: false)
   }
   
-  init (latitude: Double, longitude: Double, inRadians: Bool) {
-    if inRadians {
-      self.latitude  = latitude
-      self.longitude = longitude
+  init (latitude _latitude: Double,longitude _longitude: Double, inRadians _inRadians: Bool) {
+    if _inRadians {
+        self.latitude  = _latitude
+        self.longitude = _longitude
     } else {
-      self.latitude  = toRadians(latitude)
-      self.longitude = toRadians(longitude)
+        self.latitude  = toRadians(value: _latitude)
+        self.longitude = toRadians(value: _longitude)
     }
     self.speed        = 0
     self.bearing      = 0
@@ -57,20 +57,20 @@ struct Point: Equatable {
     self.acceleration = 0
   }
   
-   init (latitude: Double, longitude: Double) {
-    self.init(latitude: latitude, longitude: longitude, inRadians: false)
+   init (latitude _latitude: Double,longitude _longitude: Double) {
+    self.init(latitude: _latitude, longitude: _longitude, inRadians: false)
   }
   
-   init (latitude: Double, longitude: Double, bearing: Double) {
-    self.init(latitude: latitude, longitude: longitude, inRadians: false)
-    self.bearing = bearing
+   init (latitude _latitude: Double,longitude _longitude: Double,bearing _bearing: Double) {
+    self.init(latitude: _latitude, longitude: _longitude, inRadians: false)
+    self.bearing = _bearing
   }
   
-   init (latitude: Double, longitude: Double, speed: Double, bearing: Double,
+   init (latitude _latitude: Double,longitude _longitude: Double,speed _speed: Double,bearing _bearing: Double,
     horizontalAccuracy: Double, verticalAccuracy: Double, timestamp: Double) {
-      self.init(latitude: latitude, longitude: longitude, inRadians: false)
-      self.speed     = speed
-      self.bearing   = bearing
+      self.init(latitude: _latitude, longitude: _longitude, inRadians: false)
+      self.speed     = _speed
+      self.bearing   = _bearing
       self.hAccuracy = horizontalAccuracy
       self.vAccuracy = verticalAccuracy
       self.timestamp = timestamp
@@ -86,11 +86,11 @@ struct Point: Equatable {
   }
   
   func latitudeDegrees() -> Double {
-    return roundValue(toDegrees(latitude))
+    return roundValue(value: toDegrees(value: latitude))
   }
   
   func longitudeDegrees() -> Double {
-    return roundValue(toDegrees(longitude))
+    return roundValue(value: toDegrees(value: longitude))
   }
   
   func subtract(point: Point) -> Point {
@@ -107,25 +107,25 @@ struct Point: Equatable {
     let θ = atan2(y, x)
     
     if (inRadians) {
-      return roundValue((θ + 2 * M_PI) % M_PI)
+        return roundValue(value: (θ + 2 * Double.pi).truncatingRemainder(dividingBy: Double.pi))
     } else {
-      return roundValue((toDegrees(θ) + 2 * 360) % 360)
+        return roundValue(value: (toDegrees(value: θ) + 2 * 360).truncatingRemainder(dividingBy: 360))
     }
   }
   
   func bearingTo(point: Point) -> Double {
-    return bearingTo(point, inRadians: false)
+    return bearingTo(point: point, inRadians: false)
   }
   
-  func destination(bearing: Double, distance: Double) -> Point {
-    let θ  = toRadians(bearing)
+  func destination(_ bearing: Double,_ distance: Double) -> Point {
+    let θ  = toRadians(value: bearing)
     let δ  = distance / RADIUS
     let φ1 = latitude
     let λ1 = longitude
     let φ2 = asin(sin(φ1) * cos(δ) + cos(φ1) * sin(δ) * cos(θ))
     var λ2 = λ1 + atan2(sin(θ) * sin(δ) * cos(φ1), cos(δ) - sin(φ1) * sin(φ2))
-    λ2 = (λ2 + 3.0 * M_PI) % (2.0 * M_PI) - M_PI // normalise to -180..+180
-    
+    λ2 = (λ2 + 3.0 * Double.pi).truncatingRemainder(dividingBy: (2.0 * Double.pi)) - Double.pi // normalise to -180..+180
+
     return Point(latitude: φ2, longitude: λ2, inRadians: true)
   }
   
@@ -142,7 +142,7 @@ struct Point: Equatable {
     return RADIUS * 2 * atan2(sqrt(a), sqrt(1 - a))
   }
   
-  static func intersectSimple(#p: Point, p2: Point, q: Point, q2: Point, inout intersection: Point) -> Bool {
+    static func intersectSimple(_ p: Point,_ p2: Point,_ q: Point,_ q2: Point,_ intersection: inout Point) -> Bool {
     let s1_x = p2.longitude - p.longitude
     let s1_y = p2.latitude - p.latitude
     let s2_x = q2.longitude - q.longitude

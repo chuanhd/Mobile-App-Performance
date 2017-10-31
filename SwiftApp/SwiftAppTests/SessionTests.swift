@@ -42,25 +42,31 @@ class SessionTests: XCTestCase {
         +   "}"
         + "}"
       
-      track = Track(jsonData: trackJSON.dataUsingEncoding(NSUTF8StringEncoding)!)
+        do {
+            track = try Track(jsonData: trackJSON.data(using: String.Encoding.utf8)!)
+        } catch {
+            
+        }
+        
+      
     }
   }
   
-  func testSingleLapSession() {
-    let lapsFilePath = NSBundle.mainBundle().pathForResource("single_lap_session", ofType: "csv", inDirectory: "Data")!
-    let contents = String(contentsOfFile: lapsFilePath, encoding: NSUTF8StringEncoding, error: nil)!
-    let lines = contents.componentsSeparatedByString("\n")
+  func testSingleLapSession() throws {
+    let lapsFilePath = Bundle.main.path(forResource: "single_lap_session", ofType: "csv", inDirectory: "Data")!
+    let contents = try String(contentsOf: URL(fileURLWithPath: lapsFilePath), encoding: String.Encoding.utf8)
+    let lines = contents.components(separatedBy: "\n")
     
     var startTime = NSDate().timeIntervalSince1970
-    SessionManager.instance.startSession(track!)
+    SessionManager.instance.startSession(track: track!)
     let session = SessionManager.instance.session
     for line in lines {
-      let parts = line.componentsSeparatedByString(",") as [NSString]
+      let parts = line.components(separatedBy: ",")
       SessionManager.instance.gps(
-        latitude: parts[0].doubleValue,
-        longitude: parts[1].doubleValue,
-        speed: parts[2].doubleValue,
-        bearing: parts[3].doubleValue,
+        Double(parts[0]) ?? 0,
+        Double(parts[1]) ?? 0,
+        Double(parts[2]) ?? 0,
+        Double(parts[3]) ?? 0,
         horizontalAccuracy: 5.0,
         verticalAccuracy: 15.0,
         timestamp: startTime)
@@ -76,28 +82,29 @@ class SessionTests: XCTestCase {
     XCTAssertEqual(laps[0].lapNumber, 0)
     XCTAssertEqual(laps[1].lapNumber, 1)
     XCTAssertEqual(laps[2].lapNumber, 2)
-    XCTAssertEqualWithAccuracy(120.64222, laps[1].duration, 0.00001)
-    XCTAssertEqualWithAccuracy(35.85215, laps[1].splits[0], 0.00001)
-    XCTAssertEqualWithAccuracy(38.94201, laps[1].splits[1], 0.00001)
-    XCTAssertEqualWithAccuracy(45.84806, laps[1].splits[2], 0.00001)
-    XCTAssertEqualWithAccuracy(1298.63, laps[1].distance, 0.01)
+    XCTAssertEqual(120.64222, laps[1].duration,accuracy: 0.00001)
+    XCTAssertEqual(35.85215, laps[1].splits[0],accuracy: 0.00001)
+    XCTAssertEqual(38.94201, laps[1].splits[1],accuracy: 0.00001)
+    XCTAssertEqual(45.84806, laps[1].splits[2],accuracy: 0.00001)
+    XCTAssertEqual(1298.63, laps[1].distance,accuracy: 0.01)
   }
   
-  func testMultiLapSession() {
-    let lapsFilePath = NSBundle.mainBundle().pathForResource("multi_lap_session", ofType: "csv", inDirectory: "Data")!
-    let contents = String(contentsOfFile: lapsFilePath, encoding: NSUTF8StringEncoding, error: nil)!
-    let lines = contents.componentsSeparatedByString("\n")
+  func testMultiLapSession() throws {
+    let lapsFilePath = Bundle.main.path(forResource: "multi_lap_session", ofType: "csv", inDirectory: "Data")!
+    let contents = try String(contentsOf: URL(fileURLWithPath: lapsFilePath), encoding: String.Encoding.utf8)
+    let lines = contents.components(separatedBy: "\n")
     
     var startTime = NSDate().timeIntervalSince1970
-    SessionManager.instance.startSession(track!)
+    SessionManager.instance.startSession(track: track!)
     let session = SessionManager.instance.session
     for line in lines {
-      let parts = line.componentsSeparatedByString(",") as [NSString]
+        
+      let parts = line.components(separatedBy: ",")
       SessionManager.instance.gps(
-        latitude: parts[0].doubleValue,
-        longitude: parts[1].doubleValue,
-        speed: parts[2].doubleValue,
-        bearing: parts[3].doubleValue,
+        Double(parts[0]) ?? 0,
+        Double(parts[1]) ?? 0,
+        Double(parts[2]) ?? 0,
+        Double(parts[3]) ?? 0,
         horizontalAccuracy: 5.0,
         verticalAccuracy: 15.0,
         timestamp: startTime)
@@ -119,13 +126,13 @@ class SessionTests: XCTestCase {
     XCTAssertEqual(laps[3].lapNumber, 3)
     XCTAssertEqual(laps[4].lapNumber, 4)
     XCTAssertEqual(laps[5].lapNumber, 5)
-    XCTAssertEqualWithAccuracy(120.64222, laps[1].duration, 0.00001)
-    XCTAssertEqualWithAccuracy(100.01685, laps[2].duration, 0.00001)
-    XCTAssertEqualWithAccuracy( 96.74609, laps[3].duration, 0.00001)
-    XCTAssertEqualWithAccuracy( 94.61198, laps[4].duration, 0.00001)
-    XCTAssertEqualWithAccuracy(1298.63, laps[1].distance, 0.01)
-    XCTAssertEqualWithAccuracy(1298.69, laps[2].distance, 0.01)
-    XCTAssertEqualWithAccuracy(1306.85, laps[3].distance, 0.01)
-    XCTAssertEqualWithAccuracy(1306.55, laps[4].distance, 0.01)
+    XCTAssertEqual(120.64222, laps[1].duration,accuracy: 0.00001)
+    XCTAssertEqual(100.01685, laps[2].duration,accuracy: 0.00001)
+    XCTAssertEqual( 96.74609, laps[3].duration,accuracy: 0.00001)
+    XCTAssertEqual( 94.61198, laps[4].duration,accuracy: 0.00001)
+    XCTAssertEqual(1298.63, laps[1].distance,accuracy: 0.01)
+    XCTAssertEqual(1298.69, laps[2].distance,accuracy: 0.01)
+    XCTAssertEqual(1306.85, laps[3].distance,accuracy: 0.01)
+    XCTAssertEqual(1306.55, laps[4].distance,accuracy: 0.01)
   }
 }

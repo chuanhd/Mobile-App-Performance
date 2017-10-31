@@ -38,11 +38,15 @@ class TrackTests: XCTestCase {
       +   "}"
       + "}"
     
-    let track = Track(jsonData: trackJSON.dataUsingEncoding(NSUTF8StringEncoding)!)
-    
-    XCTAssertEqual(track.id, 1000)
-    XCTAssertEqual(track.name, "Test Raceway")
-    XCTAssertEqual(track.numSplits(), 3)
+    do {
+        let track = try Track(jsonData: trackJSON.data(using: String.Encoding.utf8)!)
+        
+        XCTAssertEqual(track.id, 1000)
+        XCTAssertEqual(track.name, "Test Raceway")
+        XCTAssertEqual(track.numSplits(), 3)
+    } catch  {
+        
+    }
   }
   
   func testTrackLoadFailOnId() {

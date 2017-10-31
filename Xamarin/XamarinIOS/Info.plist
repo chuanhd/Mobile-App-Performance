@@ -5,7 +5,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>XamarinIOS</string>
 	<key>CFBundleIdentifier</key>
-	<string>harrycheung.map.XamarinIOS</string>
+	<string>jp.septech.map.XamarinIOS</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
@@ -42,5 +42,7 @@
 	<string>Resources/Images.xcassets/AppIcons.appiconset</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>CFBundleName</key>
+	<string>XamarinIOS</string>
 </dict>
 </plist>

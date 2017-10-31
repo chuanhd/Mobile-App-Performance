@@ -29,7 +29,7 @@ final class Lap {
     self.distance  = 0
     self.valid     = false
     self.outLap    = lapNumber == 0
-    self.splits    = [Double](count: track.numSplits(), repeatedValue: 0)
+    self.splits    = [Double](repeating: 0, count: track.numSplits())
   }
   
   func add(point: Point) {
